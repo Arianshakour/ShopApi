@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Application.Services.Interfaces;
 using Shop.Domain.Dtoes.Category;
@@ -7,6 +8,7 @@ namespace Shop.EndPoint.Controllers
 {
     [ApiController]
     [Route("api/category")]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly IProductService _productService;
