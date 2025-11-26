@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shop.Application.Services.Implementation;
 using Shop.Application.Services.Interfaces;
+using Shop.EndPoint.Security.Handlers;
+using Shop.EndPoint.Security.Policy;
 using Shop.Infrastructure.Context;
 using Shop.Infrastructure.Repository.Implementation;
 using Shop.Infrastructure.Repository.Interfaces;
@@ -20,6 +23,11 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("ShopContext")));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IAuthentication, Authentication>();
+builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
 
 //tanzimat marboot be JWTBearer
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(option =>

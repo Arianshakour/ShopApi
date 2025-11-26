@@ -45,6 +45,14 @@ namespace Shop.Application.Services.Implementation
             claimsForToken.Add(new Claim("Id", user.Id.ToString()));
             claimsForToken.Add(new Claim("UserName", user.UserName.ToString()));
 
+            // دریافت پرمیژن‌ها از دیتابیس
+            var permissions = getPermission(user);
+
+            foreach (var perm in permissions)
+            {
+                claimsForToken.Add(new Claim("permission", perm)); // کلایم اختصاصی پرمیژن
+            }
+
             var jwtSecurityToke = new JwtSecurityToken(
                 _configuration["Authentication:Issuer"],
                 _configuration["Authentication:Audience"],
@@ -58,6 +66,14 @@ namespace Shop.Application.Services.Implementation
             var tokenToReturn = new JwtSecurityTokenHandler()
                 .WriteToken(jwtSecurityToke);
             return tokenToReturn;
+        }
+
+        public List<string> getPermission(User user)
+        {
+            var permissions = _context.UserRoles.Where(ur => ur.UserId == user.Id)
+                .SelectMany(ur => ur.role.rolePermissions)
+                .Select(rp => rp.permission.PermissionKey).Distinct().ToList();
+            return permissions;
         }
 
     }

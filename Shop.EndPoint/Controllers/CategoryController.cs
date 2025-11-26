@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Application.Services.Interfaces;
 using Shop.Domain.Dtoes.Category;
+using Shop.EndPoint.Security.Attributes;
 
 namespace Shop.EndPoint.Controllers
 {
@@ -16,6 +17,7 @@ namespace Shop.EndPoint.Controllers
         {
             _productService = productService;
         }
+        [Permission("User.Create")]
         [HttpGet]
         public IActionResult GetCategories()
         {

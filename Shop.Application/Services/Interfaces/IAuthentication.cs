@@ -11,5 +11,6 @@ namespace Shop.Application.Services.Interfaces
     {
         User Validation(string username, string pass);
         string GenerateToken(User user);
+        List<string> getPermission(User user);
     }
 }

@@ -17,5 +17,9 @@ namespace Shop.Infrastructure.Context
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categorys { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
     }
 }

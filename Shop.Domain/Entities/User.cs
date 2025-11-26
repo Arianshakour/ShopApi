@@ -20,5 +20,8 @@ namespace Shop.Domain.Entities
         [MaxLength(50)]
         public string Family { get; set; }
         public string Email { get; set; }
+
+        //Relation
+        public List<UserRole> userRoles { get; set; }
     }
 }
