@@ -115,10 +115,6 @@ namespace Shop.Infrastructure.Repository.Implementation
             {
                 products = products.Where(x => x.Price <= filter.MaxPrice.Value);
             }
-            if (filter.MaxPrice.HasValue)
-            {
-                products = products.Where(x => x.Price <= filter.MaxPrice.Value);
-            }
             if(filter.CategoryId != null)
             {
                 products = products.Where(x => x.CategoryId == filter.CategoryId);

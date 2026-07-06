@@ -1,4 +1,5 @@
-﻿using Shop.Application.Services.Interfaces;
+﻿using Shop.Application.Cache;
+using Shop.Application.Services.Interfaces;
 using Shop.Domain.Dtoes;
 using Shop.Domain.Dtoes.Category;
 using Shop.Domain.Dtoes.Product;
@@ -15,9 +16,11 @@ namespace Shop.Application.Services.Implementation
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-        public ProductService(IProductRepository productRepository)
+        private readonly ICacheService _cacheService;
+        public ProductService(IProductRepository productRepository, ICacheService cacheService)
         {
             _productRepository = productRepository;
+            _cacheService = cacheService;
         }
 
         public List<CategoryDto> GetCategories()
@@ -155,8 +158,18 @@ namespace Shop.Application.Services.Implementation
 
         public List<ProductDto> GetAllProducts(FilteringDto filter)
         {
+            var cacheKey = CacheKeys.Products(filter);
+            //khandan az cache
+            var cachedProducts = _cacheService.Get<List<ProductDto>>(cacheKey);
+
+            if (cachedProducts != null)
+            {
+                return cachedProducts;
+            }
+
             var data = _productRepository.GetProducts(filter);
-            return data.Select(x => new ProductDto
+
+            var result = data.Select(x => new ProductDto
             {
                 Id = x.Id,
                 CategoryId = x.CategoryId,
@@ -165,7 +178,13 @@ namespace Shop.Application.Services.Implementation
                 Description = x.Description,
                 IsActive = x.IsActive
             }).ToList();
+
+            // Zakhire dar cache
+            _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
+
+            return result;
         }
+
         public ProductDto GetProductByCategoryId(int categoryId, int id)
         {
             var data = _productRepository.GetProductByCategoryId(categoryId, id);
@@ -186,6 +205,12 @@ namespace Shop.Application.Services.Implementation
         }
         public ProductDto GetProduct(int id)
         {
+            var cacheKey = CacheKeys.Product(id);
+            var cachedProduct =  _cacheService.Get<ProductDto>(cacheKey);//khandan az redis
+            if (cachedProduct != null)
+            {
+                return cachedProduct;
+            }
             var data = _productRepository.GetProduct(id);
             var result = new ProductDto()
             {
@@ -196,6 +221,8 @@ namespace Shop.Application.Services.Implementation
                 Price = data.Price,
                 CategoryId = data.CategoryId
             };
+
+            _cacheService.Set(cacheKey,result,TimeSpan.FromMinutes(5));//zakhire dar redis
             return result;
         }
 

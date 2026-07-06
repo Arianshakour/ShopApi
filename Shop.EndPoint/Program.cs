@@ -9,6 +9,7 @@ using Shop.Infrastructure.Context;
 using Shop.Infrastructure.Repository.Implementation;
 using Shop.Infrastructure.Repository.Interfaces;
 using System.Text;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>(
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
-
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
 //tanzimat marboot be JWTBearer
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(option =>
@@ -44,6 +45,15 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(option =>
     };
 });
 
+//tanzimat marboot be Redis
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+
+    var connectionString = configuration.GetConnectionString("Redis");
+
+    return ConnectionMultiplexer.Connect(connectionString!);
+});
 
 var app = builder.Build();
 
