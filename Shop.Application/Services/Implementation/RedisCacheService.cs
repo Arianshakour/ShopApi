@@ -41,6 +41,31 @@ namespace Shop.Application.Services.Implementation
             //inja az json be dto taqir mide va mide be ma
             return JsonSerializer.Deserialize<T>(value!);
         }
+
+        public void Remove(string key)
+        {
+            _database.KeyDelete(key);
+        }
+
+        //ma roye search haye list dg version midim ke majboor nabashim badaz update/delete/create berim kole
+        // key haye marboot be list ra hazf konim az redis
+        //chon hazinash balast
+        public int GetVersion(string key)
+        {
+            var value = _database.StringGet(key);
+
+            if (value.IsNullOrEmpty)
+            {
+                return 1;
+            }
+
+            return (int)value;
+        }
+
+        public long IncrementVersion(string key)
+        {
+            return _database.StringIncrement(key);
+        }
     }
 
 }

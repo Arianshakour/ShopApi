@@ -158,7 +158,9 @@ namespace Shop.Application.Services.Implementation
 
         public List<ProductDto> GetAllProducts(FilteringDto filter)
         {
-            var cacheKey = CacheKeys.Products(filter);
+            var version = _cacheService.GetVersion(CacheKeys.ProductListVersion);
+
+            var cacheKey = CacheKeys.Products(filter, version);
             //khandan az cache
             var cachedProducts = _cacheService.Get<List<ProductDto>>(cacheKey);
 
@@ -238,6 +240,10 @@ namespace Shop.Application.Services.Implementation
             };
             _productRepository.AddProduct(p);
             _productRepository.Save();
+
+            //inja version bordim bala ke cache jadid tolid beshe
+            _cacheService.IncrementVersion(CacheKeys.ProductListVersion);
+
             var created = new ProductDto()
             {
                 CategoryId = p.CategoryId,
@@ -272,6 +278,14 @@ namespace Shop.Application.Services.Implementation
                 p.CategoryId = edit.CategoryId;
                 _productRepository.UpdateProduct(p);
                 _productRepository.Save();
+
+                //toye search yek product cache ra hazf mikonim
+                //vali toye search list chon option ha ziade version midim qablia khodesh bade 5min hazf mishe
+                _cacheService.Remove(CacheKeys.Product(productId));
+                //inja version bordim bala ke cache jadid tolid beshe
+                // toye khode redis mire bala ehtiaji nist inja berizamesh to chizi
+                _cacheService.IncrementVersion(CacheKeys.ProductListVersion);
+
                 return true;
             }
         }
@@ -287,6 +301,13 @@ namespace Shop.Application.Services.Implementation
             {
                 _productRepository.DeleteProduct(p);
                 _productRepository.Save();
+
+                //toye search yek product cache ra hazf mikonim
+                //vali toye search list chon option ha ziade version midim qablia khodesh bade 5min hazf mishe
+                _cacheService.Remove(CacheKeys.Product(productId));
+                //inja version bordim bala ke cache jadid tolid beshe
+                _cacheService.IncrementVersion(CacheKeys.ProductListVersion);
+
                 return true;
             }
         }

@@ -12,9 +12,23 @@ namespace Shop.Application.Cache
         public static string Product(int id)
             => $"Product:{id}";
 
-        public static string Products(FilteringDto filter)
+        //public static string Products(FilteringDto filter)
+        //{
+        //    return $"Products:" +
+        //           $"Search={filter.Search ?? ""}:" +
+        //           $"Category={filter.CategoryId?.ToString() ?? "All"}:" +
+        //           $"Min={filter.MinPrice?.ToString() ?? "0"}:" +
+        //           $"Max={filter.MaxPrice?.ToString() ?? "Max"}:" +
+        //           $"Sort={filter.SortBy}:" +
+        //           $"Order={filter.SortOrder}:" +
+        //           $"Page={filter.PageId}:" +
+        //           $"Size={filter.PageSize}";
+        //}
+
+        public const string ProductListVersion = "Products:Version";
+        public static string Products(FilteringDto filter, int version)
         {
-            return $"Products:" +
+            return $"Products:v{version}:" +
                    $"Search={filter.Search ?? ""}:" +
                    $"Category={filter.CategoryId?.ToString() ?? "All"}:" +
                    $"Min={filter.MinPrice?.ToString() ?? "0"}:" +

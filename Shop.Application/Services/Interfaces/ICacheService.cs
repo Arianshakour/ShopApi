@@ -16,5 +16,11 @@ namespace Shop.Application.Services.Interfaces
         void Set<T>(string key, T value, TimeSpan? expiry = null);//sakhte klid
 
         T? Get<T>(string key);//gereftan data
+
+        void Remove(string key);//hazf Cache
+
+        int GetVersion(string key);//daryaft version
+
+        long IncrementVersion(string key);//afzayesh version
     }
 }
