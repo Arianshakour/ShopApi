@@ -4,6 +4,7 @@ using Shop.Domain.Dtoes;
 using Shop.Domain.Dtoes.Category;
 using Shop.Domain.Dtoes.Product;
 using Shop.Domain.Entities;
+using Shop.Infrastructure.ElasticSearch;
 using Shop.Infrastructure.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,13 @@ namespace Shop.Application.Services.Implementation
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IElasticProductService _elasticProductService;
         private readonly ICacheService _cacheService;
-        public ProductService(IProductRepository productRepository, ICacheService cacheService)
+        public ProductService(IProductRepository productRepository, ICacheService cacheService, IElasticProductService elasticProductService)
         {
             _productRepository = productRepository;
             _cacheService = cacheService;
+            _elasticProductService = elasticProductService;
         }
 
         public List<CategoryDto> GetCategories()
@@ -158,6 +161,9 @@ namespace Shop.Application.Services.Implementation
 
         public List<ProductDto> GetAllProducts(FilteringDto filter)
         {
+            //age khasti az elastic beri khat ziro az comment dar biar
+            //return _elasticProductService.SearchProducts(filter);
+
             var version = _cacheService.GetVersion(CacheKeys.ProductListVersion);
 
             var cacheKey = CacheKeys.Products(filter, version);
@@ -246,12 +252,16 @@ namespace Shop.Application.Services.Implementation
 
             var created = new ProductDto()
             {
+                Id = p.Id,
                 CategoryId = p.CategoryId,
                 ProductName = p.ProductName,
                 IsActive = p.IsActive,
                 Description = p.Description,
                 Price = p.Price
             };
+
+            //dar elastic ham sakhtim
+            //_elasticProductService.IndexProduct(created);
             return created;
         }
 
@@ -286,6 +296,19 @@ namespace Shop.Application.Services.Implementation
                 // toye khode redis mire bala ehtiaji nist inja berizamesh to chizi
                 _cacheService.IncrementVersion(CacheKeys.ProductListVersion);
 
+                //inja baraye Elastic hast ke update konim
+                var dto = new ProductDto
+                {
+                    Id = p.Id,
+                    ProductName = p.ProductName,
+                    Description = p.Description,
+                    Price = p.Price,
+                    CategoryId = p.CategoryId,
+                    IsActive = p.IsActive
+                };
+
+                //_elasticProductService.UpdateProduct(dto);
+
                 return true;
             }
         }
@@ -307,6 +330,9 @@ namespace Shop.Application.Services.Implementation
                 _cacheService.Remove(CacheKeys.Product(productId));
                 //inja version bordim bala ke cache jadid tolid beshe
                 _cacheService.IncrementVersion(CacheKeys.ProductListVersion);
+
+                //inja baraye Elastic hast ke delete konim
+                //_elasticProductService.DeleteProduct(productId);
 
                 return true;
             }

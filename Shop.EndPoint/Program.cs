@@ -6,10 +6,15 @@ using Shop.Application.Services.Interfaces;
 using Shop.EndPoint.Security.Handlers;
 using Shop.EndPoint.Security.Policy;
 using Shop.Infrastructure.Context;
+using Shop.Infrastructure.ElasticSearch;
+using Shop.Infrastructure.Configuration;
 using Shop.Infrastructure.Repository.Implementation;
 using Shop.Infrastructure.Repository.Interfaces;
 using System.Text;
 using StackExchange.Redis;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +34,25 @@ builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+builder.Services.AddScoped<IElasticProductService, ElasticProductService>();
+builder.Services.AddScoped<IElasticSearchService, ElasticSearchService>();
+
+//tanzimate ElasticSearch
+//yani maqadir appsetting ro beriz to class ElasticSearchSettings
+builder.Services.Configure<ElasticSearchSettings>(
+    builder.Configuration.GetSection("ElasticSearch"));
+//connection be ElasticSearch
+builder.Services.AddSingleton<ElasticsearchClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<ElasticSearchSettings>>().Value;
+
+    var clientSettings = new ElasticsearchClientSettings(new Uri(settings.Url))
+        .Authentication(new BasicAuthentication(settings.Username, settings.Password))
+        .DefaultIndex(settings.DefaultIndex);
+
+    return new ElasticsearchClient(clientSettings);
+});
 
 //tanzimat marboot be JWTBearer
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(option =>
