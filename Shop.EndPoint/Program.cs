@@ -15,8 +15,23 @@ using StackExchange.Redis;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Options;
+using Serilog;
+
+
+//for Serilog download
+//Serilog.AspNetCore
+//Serilog.Sinks.Console
+//Serilog.Sinks.File
+
+//Tanzimate Log
+//Inja bood bordim dar appsetting chon vase mode haye develop o production onja bashe behtare
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Tanzimate SeriLog
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add services to the container.
 
@@ -70,6 +85,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(option =>
 });
 
 //tanzimat marboot be Redis
+//hatman chek kon Memurai dar Services windows Running bashe
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

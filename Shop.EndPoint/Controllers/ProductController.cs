@@ -11,13 +11,17 @@ namespace Shop.EndPoint.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly ILogger<ProductController> _logger;
+        //az qast ILogger ra be sorate T zadim ke kamel moshakhas beshe in log baraye kodom qesmat barname hast
+        public ProductController(IProductService productService, ILogger<ProductController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
         [HttpGet]
         public IActionResult GetProducts([FromQuery] FilteringDto filter)
         {
+            _logger.LogInformation("GetProducts called");
             var model = _productService.GetAllProducts(filter);
             return Ok(model);
         }
