@@ -104,6 +104,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//SeriLog
+app.UseSerilogRequestLogging();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -21,7 +21,12 @@ namespace Shop.EndPoint.Controllers
         [HttpGet]
         public IActionResult GetProducts([FromQuery] FilteringDto filter)
         {
-            _logger.LogInformation("GetProducts called");
+            //_logger.LogInformation("GetProducts called");
+            //_logger.LogInformation(
+            //    "GetProducts called. PageNumber: {PageNumber}, PageSize: {PageSize}",
+            //    filter.PageId,
+            //    filter.PageSize);
+
             var model = _productService.GetAllProducts(filter);
             return Ok(model);
         }
