@@ -1,4 +1,5 @@
-﻿using Shop.Application.Cache;
+﻿using Microsoft.Extensions.Logging;
+using Shop.Application.Cache;
 using Shop.Application.Services.Interfaces;
 using Shop.Domain.Dtoes;
 using Shop.Domain.Dtoes.Category;
@@ -19,11 +20,14 @@ namespace Shop.Application.Services.Implementation
         private readonly IProductRepository _productRepository;
         private readonly IElasticProductService _elasticProductService;
         private readonly ICacheService _cacheService;
-        public ProductService(IProductRepository productRepository, ICacheService cacheService, IElasticProductService elasticProductService)
+        private readonly ILogger<ProductService> _logger;//baraye test TraceId Log
+
+        public ProductService(IProductRepository productRepository, ICacheService cacheService, IElasticProductService elasticProductService,ILogger<ProductService> logger)
         {
             _productRepository = productRepository;
             _cacheService = cacheService;
             _elasticProductService = elasticProductService;
+            _logger = logger;
         }
 
         public List<CategoryDto> GetCategories()
@@ -213,6 +217,10 @@ namespace Shop.Application.Services.Implementation
         }
         public ProductDto GetProduct(int id)
         {
+            //baraye test TraceId Log
+            //_logger.LogInformation(
+            //"Product found. ProductId: {ProductId}",id);
+
             var cacheKey = CacheKeys.Product(id);
             var cachedProduct =  _cacheService.Get<ProductDto>(cacheKey);//khandan az redis
             if (cachedProduct != null)

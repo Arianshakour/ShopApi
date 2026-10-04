@@ -16,6 +16,7 @@ using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Options;
 using Serilog;
+using Shop.EndPoint.Middleware;
 
 
 //for Serilog download
@@ -103,6 +104,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//Middleware Global Log
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 //SeriLog
 app.UseSerilogRequestLogging();

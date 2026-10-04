@@ -56,6 +56,16 @@ namespace Shop.EndPoint.Controllers
         [HttpGet("{id}", Name = "GetProduct")]
         public IActionResult GetProduct(int id)
         {
+            //test GlobalMiddleware Log
+            //if (id <= 0)
+            //{
+            //    throw new ArgumentException("Product id must be greater than zero.");
+            //}
+
+            //test TraceId Log
+            //   _logger.LogInformation(
+            //"Getting product. ProductId: {ProductId}",id);
+
             if (!_productService.IsExistProduct(id))
             {
                 return NotFound();
