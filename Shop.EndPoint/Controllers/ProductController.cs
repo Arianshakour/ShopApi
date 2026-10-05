@@ -63,8 +63,8 @@ namespace Shop.EndPoint.Controllers
             //}
 
             //test TraceId Log
-            //   _logger.LogInformation(
-            //"Getting product. ProductId: {ProductId}",id);
+               _logger.LogInformation(
+            "Getting product. ProductId: {ProductId}", id);
 
             if (!_productService.IsExistProduct(id))
             {

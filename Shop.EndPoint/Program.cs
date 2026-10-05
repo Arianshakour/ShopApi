@@ -112,6 +112,10 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
+
+//hatman bayad ehraz hoviat beshe ta UserId dashte bashe bad bere dar Middleware zir
+app.UseMiddleware<UserContextLoggingMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();
