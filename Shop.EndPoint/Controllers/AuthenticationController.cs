@@ -10,9 +10,12 @@ namespace Shop.EndPoint.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthentication _auten;
-        public AuthenticationController(IAuthentication auten)
+        private readonly ILogger<AuthenticationController> _logger;
+
+        public AuthenticationController(IAuthentication auten, ILogger<AuthenticationController> logger)
         {
             _auten = auten;
+            _logger = logger;
         }
         [HttpPost]
         public IActionResult Authenticate(AuthenticationDto req)
@@ -24,6 +27,11 @@ namespace Shop.EndPoint.Controllers
             var user = _auten.Validation(req.UserName, req.Password);
             if (user == null)
             {
+                //in log haro bezar chon khata nakhorde barname chizi log nemishe pas
+                //baraye log security khobe
+                _logger.LogWarning(
+                    "Failed login attempt. Username: {Username}", req.UserName);
+
                 return Unauthorized();
             }
             //download package IdentityModel.Token.JWT && Aspnetcore.JWTBearer

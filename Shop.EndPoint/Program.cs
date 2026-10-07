@@ -77,6 +77,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(option =>
     {
         ValidateIssuer = true,
         ValidateAudience = true,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Authentication:Issuer"],
         ValidAudience = builder.Configuration["Authentication:Audience"],
@@ -115,6 +116,9 @@ app.UseAuthentication();
 
 //hatman bayad ehraz hoviat beshe ta UserId dashte bashe bad bere dar Middleware zir
 app.UseMiddleware<UserContextLoggingMiddleware>();
+
+//warning kardan api haye kond
+app.UseMiddleware<SlowRequestMiddleware>();
 
 app.UseAuthorization();
 
