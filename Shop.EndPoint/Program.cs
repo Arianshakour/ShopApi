@@ -17,6 +17,7 @@ using Elastic.Transport;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Shop.EndPoint.Middleware;
+using Microsoft.OpenApi.Models;
 
 
 //for Serilog download
@@ -39,7 +40,35 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
+//ba in tanzimat b swagger jwt mifresti va niazi be postman nadari
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 builder.Services.AddDbContext<ShopContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("ShopContext")));
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -50,6 +79,21 @@ builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+//Tanzimate Origin yani az kodom front ha mitoonan be ma darkhast bezanan
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("DefaultPolicy", policy =>
+//    {
+//        policy
+//            .WithOrigins(
+//                "http://localhost:3000",
+//                "https://admin.myapp.com"
+//            )
+//            .AllowAnyHeader()
+//            .AllowAnyMethod();
+//    });
+//});
 
 builder.Services.AddScoped<IElasticProductService, ElasticProductService>();
 builder.Services.AddScoped<IElasticSearchService, ElasticSearchService>();
@@ -105,6 +149,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//baraye Origin
+//app.UseCors("DefaultPolicy");
 
 //Middleware Global Log
 app.UseMiddleware<GlobalExceptionMiddleware>();
