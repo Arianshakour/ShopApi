@@ -30,7 +30,14 @@ namespace Shop.EndPoint.Controllers
             var model = _productService.GetAllProducts(filter);
             return Ok(model);
         }
+        //baraye Pagination public
+        [HttpGet("GetProducts2")]
+        public IActionResult GetProducts2([FromQuery] ProductFilterRequest request)
+        {
+            var model = _productService.GetProducts2(request);
 
+            return Ok(model);
+        }
         [HttpGet("ByCategory/{categoryId}")]
         public IActionResult GetProductsByCategoryId(int categoryId)
         {

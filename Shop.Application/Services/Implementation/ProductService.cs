@@ -196,7 +196,29 @@ namespace Shop.Application.Services.Implementation
 
             return result;
         }
+        public PaginationResult<ProductDto> GetProducts2(ProductFilterRequest request)
+        {
+            var data = _productRepository.GetProducts2(request);
 
+            var result = data.Items.Select(x => new ProductDto
+            {
+                Id = x.Id,
+                CategoryId = x.CategoryId,
+                Price = x.Price,
+                ProductName = x.ProductName,
+                Description = x.Description,
+                IsActive = x.IsActive
+            }).ToList();
+
+            return new PaginationResult<ProductDto>
+            {
+                Items = result,
+                PageNumber = data.PageNumber,
+                PageSize = data.PageSize,
+                TotalCount = data.TotalCount,
+                TotalPages = data.TotalPages
+            };
+        }
         public ProductDto GetProductByCategoryId(int categoryId, int id)
         {
             var data = _productRepository.GetProductByCategoryId(categoryId, id);

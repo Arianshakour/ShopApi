@@ -11,6 +11,7 @@ namespace Shop.Infrastructure.Repository.Interfaces
     public interface IProductRepository
     {
         List<Product> GetProducts(FilteringDto filter);
+        PaginationResult<Product> GetProducts2(ProductFilterRequest request);
         List<Product> GetProductsByCategoryId(int categoryId);
         Product? GetProduct(int id);
         Product GetProductByCategoryId(int categoryId, int productId);

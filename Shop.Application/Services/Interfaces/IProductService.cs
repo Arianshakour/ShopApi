@@ -23,6 +23,7 @@ namespace Shop.Application.Services.Interfaces
         //Product
         List<ProductDto> GetProductsByCategoryId(int categoryId);
         List<ProductDto> GetAllProducts(FilteringDto filter);
+        PaginationResult<ProductDto> GetProducts2(ProductFilterRequest request);
         ProductDto GetProductByCategoryId(int categoryId, int id);
         ProductDto GetProduct(int id);
         ProductDto AddProduct(int categoryId, ProductForCreateDto create);

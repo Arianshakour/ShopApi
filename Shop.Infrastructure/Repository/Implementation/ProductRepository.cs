@@ -135,6 +135,75 @@ namespace Shop.Infrastructure.Repository.Implementation
             products = products.Skip(skip).Take(filter.PageSize);
             return products.ToList();
         }
+        public PaginationResult<Product> GetProducts2(ProductFilterRequest request)
+        {
+            var products = _context.Products
+                .OrderBy(p => p.Id)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                products = products.Where(p =>
+                    p.ProductName.Contains(request.Search) ||
+                    p.Description.Contains(request.Search));
+            }
+
+            if (request.MinPrice.HasValue)
+            {
+                products = products.Where(p =>
+                    p.Price >= request.MinPrice.Value);
+            }
+
+            if (request.MaxPrice.HasValue)
+            {
+                products = products.Where(p =>
+                    p.Price <= request.MaxPrice.Value);
+            }
+
+            if (request.CategoryId.HasValue)
+            {
+                products = products.Where(p =>
+                    p.CategoryId == request.CategoryId.Value);
+            }
+
+            var totalCount = products.Count();
+
+
+            //Inja field haye mojaz moshakhas mikonim
+            var allowedSortFields = new[]
+            {
+                nameof(Product.Id),//nameof bezari behtare ta Id khali bezari age badan esmesh avaz shod rahat peida mikoni khataro
+                nameof(Product.ProductName),
+                nameof(Product.Price)
+            };
+
+            if (!string.IsNullOrWhiteSpace(request.SortBy)
+                && allowedSortFields.Contains(request.SortBy, StringComparer.OrdinalIgnoreCase))
+            {
+                products = products.OrderByCustom(
+                    request.SortBy,
+                    request.SortOrder);
+            }
+            else
+            {
+                products = products.OrderBy(p => p.Id);
+            }
+
+
+            var data = products
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+
+            return new PaginationResult<Product>
+            {
+                Items = data,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize)
+            };
+        }
 
         public List<Product> GetProductsByCategoryId(int categoryId)
         {
