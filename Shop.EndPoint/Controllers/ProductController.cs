@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.Application.Services.Interfaces;
 using Shop.Domain.Dtoes.Product;
 using Shop.Domain.Dtoes;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Shop.EndPoint.Controllers
 {
@@ -37,6 +38,23 @@ namespace Shop.EndPoint.Controllers
             var model = _productService.GetProducts2(request);
 
             return Ok(model);
+        }
+        //Test RateLimit --> FixedWindow
+        [HttpGet("RateLimitTest")]
+        [EnableRateLimiting("PerUser")]
+        public IActionResult RateLimitTest()
+        {
+            return Ok("Request successful");
+        }
+        //Test RateLimit2 --> Concurrency Limiter
+        //Test with PowerShell for 3Request
+        [HttpGet("RateLimitReportTest")]
+        [EnableRateLimiting("Concurrency")]
+        public IActionResult RateLimitReportTest()
+        {
+            Task.Delay(TimeSpan.FromSeconds(10));
+
+            return Ok("Request successful");
         }
         [HttpGet("ByCategory/{categoryId}")]
         public IActionResult GetProductsByCategoryId(int categoryId)

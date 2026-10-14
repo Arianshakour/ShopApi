@@ -18,6 +18,8 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Shop.EndPoint.Middleware;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 
 //for Serilog download
@@ -141,6 +143,52 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(connectionString!);
 });
 
+//Rate Limit
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("Fixed", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 5;//5 darkhast mojaz ast
+        limiterOptions.Window = TimeSpan.FromMinutes(1);//dar baze 1 min
+        limiterOptions.QueueLimit = 0;//dar khast ezafe montazer nemimanad
+        limiterOptions.AutoReplenishment = true;
+    });
+
+    //mahdodiat baraye har karbar
+    options.AddPolicy("PerUser", httpContext =>
+    {
+        var claims = httpContext.User.Claims
+        .Select(c => new { c.Type, c.Value })
+        .ToList();
+
+        var userId = httpContext.User.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? httpContext.User.FindFirst("Id")?.Value;
+
+        var partitionKey = userId
+            ?? httpContext.Connection.RemoteIpAddress?.ToString()
+            ?? "anonymous";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+
+    options.AddConcurrencyLimiter("Concurrency", limiterOptions =>//baraye Darkhasthaye toolani mese gozaresh giri
+    {
+        limiterOptions.PermitLimit = 2;//faqat 2 ta run mishe hamzaman
+        limiterOptions.QueueLimit = 0;//chizi to saf nemimoone
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -166,6 +214,10 @@ app.UseMiddleware<UserContextLoggingMiddleware>();
 
 //warning kardan api haye kond
 app.UseMiddleware<SlowRequestMiddleware>();
+
+//Baraye RateLimit va Hatman bade Authentication bashe
+app.UseRateLimiter();
+
 
 app.UseAuthorization();
 
