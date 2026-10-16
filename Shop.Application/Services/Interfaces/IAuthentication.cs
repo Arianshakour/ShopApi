@@ -1,4 +1,5 @@
-﻿using Shop.Domain.Entities;
+﻿using Shop.Domain.Dtoes.Authentication;
+using Shop.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,9 @@ namespace Shop.Application.Services.Interfaces
         User Validation(string username, string pass);
         string GenerateToken(User user);
         List<string> getPermission(User user);
+        bool Register(RegisterDto req);
+        string SaveRefreshToken(User user);
+        LoginResponseDto Refresh(RefreshTokenRequestDto req);
+        bool Logout(string refreshToken, int userId);
     }
 }

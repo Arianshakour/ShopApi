@@ -21,5 +21,6 @@ namespace Shop.Infrastructure.Context
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }
